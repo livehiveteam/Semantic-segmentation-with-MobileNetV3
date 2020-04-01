@@ -3,13 +3,14 @@ import os
 from tensorflow.keras.optimizers import Optimizer
 
 from modules.loss import FbCombinedLoss, BinaryCrossentropy
-from modules.keras_models import MobileNetV3SmallSegmentation, TestModel
+from modules.keras_models import MobileNetV3SmallSegmentation, MobileNetV3LargeSegmentation, TestModel
 
 # Define dictionaries with modules names
 loss_dict = {'fb_combined': FbCombinedLoss,
              'bce': BinaryCrossentropy}
 
 model_dict = {'mobilenet_small': MobileNetV3SmallSegmentation,
+              'mobilenet_large': MobileNetV3LargeSegmentation,
               'test_model': TestModel}
 
 

@@ -92,7 +92,7 @@ for x in val_dataset_hq:
     break
 
 device = 'GPU:0'
-model_name = 'mobilenet_small'
+model_name = 'mobilenet_large'
 # model_name = 'test_model'
 n_class=1
 

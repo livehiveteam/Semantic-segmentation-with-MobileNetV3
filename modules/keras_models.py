@@ -148,6 +148,58 @@ class Bottleneck(Layer):
             x = Add()([x, inputs])
         return x
 
+class MobileNetV3LargeBackbone(Layer):
+    def __init__(self, alpha=1.0, mode='segmentation'):
+        """MobileNetV3LargeBackbone.
+        # Arguments
+            # init
+                alpha: Integer, width multiplier.
+            #call
+                inputs: Tensor, input tensor of the model
+                training: Mode for training-aware layers
+        # Returns
+            segm_features1: Feature map with h/8 resolution
+            segm_features2: Feature map with h/16 resolution
+        """
+        super(MobileNetV3LargeBackbone, self).__init__()
+        self.alpha = alpha
+        self.mode = mode
+        self.first_conv = ConvBlock(16, (3, 3), strides=2, nl='HS') # h/2
+        self.bottleneck1 = Bottleneck(16, (3, 3), expansion=16, strides=1, squeeze=False, nl='RE', alpha=alpha) #h/2
+        self.bottleneck2 = Bottleneck(24, (3, 3), expansion=64, strides=2, squeeze=False, nl='RE', alpha=alpha) #h/4
+        self.bottleneck3 = Bottleneck(24, (3, 3), expansion=72, strides=1, squeeze=False, nl='RE', alpha=alpha) #h/4
+        self.bottleneck4 = Bottleneck(40, (5, 5), expansion=72, strides=2, squeeze=True, nl='RE', alpha=alpha) #h/8
+        self.bottleneck5 = Bottleneck(40, (5, 5), expansion=120, strides=1, squeeze=True, nl='RE', alpha=alpha) #h/8
+        self.bottleneck6 = Bottleneck(40, (5, 5), expansion=120, strides=1, squeeze=True, nl='RE', alpha=alpha) #h/8
+        self.bottleneck7 = Bottleneck(80, (3, 3), expansion=240, strides=2, squeeze=False, nl='HS', alpha=alpha) #h/16 
+        self.bottleneck8 = Bottleneck(80, (3, 3), expansion=200, strides=1, squeeze=False, nl='HS', alpha=alpha) #h/16 
+        self.bottleneck9 = Bottleneck(80, (3, 3), expansion=184, strides=1, squeeze=False, nl='HS', alpha=alpha) #h/16 
+        self.bottleneck10 = Bottleneck(80, (3, 3), expansion=184, strides=1, squeeze=False, nl='HS', alpha=alpha) #h/16 
+        self.bottleneck11 = Bottleneck(112, (3, 3), expansion=480, strides=1, squeeze=True, nl='HS', alpha=alpha) #h/16 
+        self.bottleneck12 = Bottleneck(112, (3, 3), expansion=672, strides=1, squeeze=True, nl='HS', alpha=alpha) #h/16 
+        # self.bottleneck13 = Bottleneck(160, (5, 5), expansion=672, strides=2, squeeze=True, nl='HS', alpha=alpha)  
+        # self.bottleneck14 = Bottleneck(160, (5, 5), expansion=960, strides=1, squeeze=True, nl='HS', alpha=alpha)  
+        # self.bottleneck15 = Bottleneck(160, (5, 5), expansion=960, strides=1, squeeze=True, nl='HS', alpha=alpha)  
+        # self.last_stage_conv2 = Conv2D(960, (1, 1), padding='same')  #h/h
+
+    def call(self, inputs, training=True):
+        # print(inputs.shape)
+        x = self.first_conv(inputs, training=training)
+        x = self.bottleneck1(x, training=training)
+        x = self.bottleneck2(x, training=training)
+        x = self.bottleneck3(x, training=training)
+        x = self.bottleneck4(x, training=training)
+        x = self.bottleneck5(x, training=training)
+        segm_features1 = self.bottleneck6(x, training=training)
+
+        x = self.bottleneck7(segm_features1, training=training)
+        x = self.bottleneck8(x, training=training)
+        x = self.bottleneck9(x, training=training)
+        x = self.bottleneck10(x, training=training)
+        x = self.bottleneck11(x, training=training)
+        segm_features2 = self.bottleneck12(x, training=training)
+        return segm_features1, segm_features2
+
 
 class MobileNetV3SmallBackbone(Layer):
     def __init__(self, alpha=1.0, mode='segmentation'):
@@ -285,6 +337,34 @@ class LiteRASSP(Layer):
         # x = tf.nn.softmax(x, axis=-1)
         return x
 
+class MobileNetV3LargeSegmentation(Model):
+    def __init__(self, alpha=1.0, shape=(224, 224), n_class=2, avg_pool_kernel=(11, 11), avg_pool_strides=(4, 4),
+                 resize_method=ResizeMethod.BILINEAR, backbone='large'):
+        """MobileNetV3SmallSegmentation.
+        # Arguments
+            # init
+                alpha: Integer, width multiplier.
+                input_shape: Tuple/list of 2 integers, spatial shape of input tensor
+                n_class: Integer, number of classes.
+                avg_pool_kernel: Tuple/integer, size of the kernel for AveragePooling
+                avg_pool_strides: Tuple/integer, stride for applying the of AveragePooling operation
+                resize_method: Object, One from tensorflow.image.ResizeMethod
+                backbone: String, name of backbone to use
+            # Call
+                inputs: Tensor, input tensor of the model
+                training: Mode for training-aware layers
+        # Returns
+            Result of segmentation
+            """
+        super(MobileNetV3LargeSegmentation, self).__init__()
+        if backbone == 'large':
+            self.backbone = MobileNetV3LargeBackbone(alpha=alpha, mode='segmentation')
+        self.segmentation_head = LiteRASSP(shape=shape, n_class=n_class, avg_pool_kernel=avg_pool_kernel,
+                                           avg_pool_strides=avg_pool_strides, resize_method=resize_method)
+    def call(self, inputs, training=True):
+        segm_inputs= self.backbone(inputs, training)
+        output = self.segmentation_head(segm_inputs, training)
+        return output
 
 class MobileNetV3SmallSegmentation(Model):
     def __init__(self, alpha=1.0, shape=(224, 224), n_class=2, avg_pool_kernel=(11, 11), avg_pool_strides=(4, 4),
