@@ -19,36 +19,34 @@ This repository contains the code for training of MobileNetV3 for segmentation a
     
 ## Quick setup and start  <a name="quickstart"/>
 
-### Preparations 
-
+### Docker 이미지 준비 
 * Clone the repo, build a docker image using provided Makefile and Dockerfile. 
 
-    ```
-    git clone 
-    make build
-    ```
-* The final folder structure should be:
-  
-    ```
-    airbus-ship-detection
-    ├── data
-    ├── notebooks
-    ├── modules
-    ├── train
-    ├── Dockerfile
-    ├── Makefile
-    ├── requirements.txt
-    ├── README.md
-    ```
+```
+git clone 
+make build
+```
 
-### Run
+### 데이터셋 준비
+clone한 repo에서 data.zip 파일을 아래 페이지에서 다운받고 압축을 푼다.
+https://drive.google.com/open?id=1hvv_9Aj1s4jbIaWqxFeC00ss00EX_JQe
+```
+unzip data.zip
+```
 
-* The container could be started by a Makefile command. Training and evaluation process was made in Jupyter Notebooks so Jupyter Notebook should be started.
+### 학습하기
+Docker container 내에서 train.py를 실행한다.
+```
+make run
+python train.py
+```
 
-    ```
-    make run
-    jupyter notebook --allow-root
-    ```
+### 테스트
+Docker container 내에서 test.py를 실행하면 data 폴더 내에 inference 결과 이미지들이 저장된다. 
+```
+make run
+python test.py
+```
 
 ## CNN architectures <a name="cnn"/> 
 

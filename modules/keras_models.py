@@ -316,32 +316,32 @@ class MobileNetV3SmallSegmentation(Model):
         return output
 
 
-# class TestModel(Model):
-#     def __init__(self, alpha=1.0, shape=(224, 224), n_class=1, avg_pool_kernel=(11, 11), avg_pool_strides=(4, 4),
-#                  resize_method=ResizeMethod.BILINEAR, backbone='small'):
-#         super(TestModel, self).__init__()
-#         if backbone == 'small':
-#             self.backbone = MobileNetV3SmallBackbone(alpha=alpha)
-#         self.segmentation_head = LiteRASSP(shape=shape, n_class=n_class, avg_pool_kernel=avg_pool_kernel,
-#                                            avg_pool_strides=avg_pool_strides, resize_method=resize_method)
-#         self.shape = shape
-#         self.resize_method = resize_method
-#         self.conv1 = ConvBlock(filters=1,kernel=3, strides=2, nl='RE')
-#         self.bottleneck1 = Bottleneck(16, (3, 3), expansion=16, strides=2, squeeze=True, nl='RE', alpha=1.0)
-#         self.conv2 = ConvBlock(filters=1, kernel=3, strides=1, nl='RE')
-#
-#     def call(self, inputs, training=True):
-#         # x1 = self.conv1(inputs)
-#         # x = self.bottleneck1(x1)
-#         segm_inputs = self.backbone(inputs, training)
-#         output = self.segmentation_head(segm_inputs, training)
-#         # x = segm_inputs[1]
-#         # x = self.conv2(x)
-#         # output = tf.image.resize(x,
-#         #                     size=self.shape,
-#         #                     method=self.resize_method,
-#         #                     preserve_aspect_ratio=False,
-#         #                     antialias=False,
-#         #                     name=None)
-#         # print(output.shape)
-#         return output
+class TestModel(Model):
+    def __init__(self, alpha=1.0, shape=(224, 224), n_class=1, avg_pool_kernel=(11, 11), avg_pool_strides=(4, 4),
+                 resize_method=ResizeMethod.BILINEAR, backbone='small'):
+        super(TestModel, self).__init__()
+        if backbone == 'small':
+            self.backbone = MobileNetV3SmallBackbone(alpha=alpha)
+        self.segmentation_head = LiteRASSP(shape=shape, n_class=n_class, avg_pool_kernel=avg_pool_kernel,
+                                           avg_pool_strides=avg_pool_strides, resize_method=resize_method)
+        self.shape = shape
+        self.resize_method = resize_method
+        self.conv1 = ConvBlock(filters=1,kernel=3, strides=2, nl='RE')
+        self.bottleneck1 = Bottleneck(16, (3, 3), expansion=16, strides=2, squeeze=True, nl='RE', alpha=1.0)
+        self.conv2 = ConvBlock(filters=1, kernel=3, strides=1, nl='RE')
+
+    def call(self, inputs, training=True):
+        # x1 = self.conv1(inputs)
+        # x = self.bottleneck1(x1)
+        segm_inputs = self.backbone(inputs, training)
+        output = self.segmentation_head(segm_inputs, training)
+        # x = segm_inputs[1]
+        # x = self.conv2(x)
+        # output = tf.image.resize(x,
+        #                     size=self.shape,
+        #                     method=self.resize_method,
+        #                     preserve_aspect_ratio=False,
+        #                     antialias=False,
+        #                     name=None)
+        # print(output.shape)
+        return output
