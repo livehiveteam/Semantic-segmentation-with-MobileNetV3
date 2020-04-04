@@ -24,7 +24,7 @@ val_trns = test_transforms(dataset='picsart', scale_size=INPUT_SIZE)
 
 data_dirs_hq = [
     '/workdir/data/datasets/picsart/',
-    #'/workdir/data/datasets/supervisely_person/',
+    '/workdir/data/datasets/supervisely/',
 ]
 
 # data_dirs_coco = [
@@ -67,29 +67,26 @@ val_dataset_hq = ImageTargetDataset(val_dirs_hq,
 #                                            IMG_EXTN='.jpg',
 #                                            TRGT_EXTN='.png')
 
-print(len(train_dataset_hq))
-#print(len(train_dataset_coco))
-
 train_dataset = RandomConcatDataset([train_dataset_hq],
-                                    [1.0], size=90)
+                                    [1.0], size=427)
 
-for x in train_dataset:
-    img, target = x[0], x[1]
-    for i in range(8):
-        plt.imshow(img[i])
-        plt.show()
-        plt.imshow(np.squeeze(target[i]))
-        plt.show()
-    break
+# for x in train_dataset:
+#     img, target = x[0], x[1]
+#     for i in range(8):
+#         plt.imshow(img[i])
+#         plt.show()
+#         plt.imshow(np.squeeze(target[i]))
+#         plt.show()
+#     break
 
-for x in val_dataset_hq:
-    img, target = x[0], x[1]
-    for i in range(8):
-        plt.imshow(img[i])
-        plt.show()
-        plt.imshow(np.squeeze(target[i]))
-        plt.show()
-    break
+# for x in val_dataset_hq:
+#     img, target = x[0], x[1]
+#     for i in range(8):
+#         plt.imshow(img[i])
+#         plt.show()
+#         plt.imshow(np.squeeze(target[i]))
+#         plt.show()
+#     break
 
 device = 'GPU:0'
 model_name = 'mobilenet_large'
@@ -100,14 +97,17 @@ n_class=1
 n_train = len(train_dataset)
 n_val = len(val_dataset_hq)
 
+print(n_train, n_val)
+input("...")
+
 # loss_name='bce'
 loss_name = 'fb_combined'
 optimizer = 'Adam'
 lr = 0.00001
 batch_size = train_batch_size
-max_epoches = 2000
-save_directory = '/workdir/data/experiments/fb_combined_mobilenetv3_tf_coco_pixart_supervisely'
-reduce_factor = 0.995 # 0.75
+max_epoches = 1000
+save_directory = '/workdir/data/experiments/picsart_supervisely'
+reduce_factor = 0.95 # 0.75
 epoches_limit = 3
 early_stoping = 100
 metrics = [FbSegm(channel_axis=-1)]

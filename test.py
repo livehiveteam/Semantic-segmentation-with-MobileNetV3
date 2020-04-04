@@ -11,22 +11,27 @@ from train.train import Model
 
 import matplotlib.pyplot as plt
 
-# TEST_DIR = '/workdir/data/datasets/picsart/test/images'
-# RESULT_DIR = '/workdir/data/results/test/'
+TEST_DIR = '/workdir/data/datasets/picsart/test/images'
+RESULT_DIR = '/workdir/data/results/test/'
 
-TEST_DIR = '/workdir/data/datasets/picsart/train/images'
-RESULT_DIR = '/workdir/data/results/train/'
+# TEST_DIR = '/workdir/data/datasets/picsart/train/images'
+# RESULT_DIR = '/workdir/data/results/train/'
 
 test_imgs = os.listdir(TEST_DIR)
 
 device = 'GPU:0'
-model_name = 'mobilenet_small'
+model_name = 'mobilenet_small' # 'mobilenet_small'
+
+#old_model_path = '/workdir/data/experiments/fb_combined_mobilenetv3_tf_coco_pixart_supervisely/model_best_0.12529000639915466.h5'
+#old_model_path = '/workdir/data/experiments/picsart_supervisely/model_best_0.3700900077819824.h5' # large
+old_model_path = '/workdir/data/experiments/picsart_supervisely/model_best_0.26719000935554504.h5' # small
+
 mobilenet_model = Model(device=device,
                         model_name=model_name,
                         n_class=1,
                         input_shape=(1,224,224,3),
-                        old_model_path='/workdir/data/experiments/fb_combined_mobilenetv3_tf_coco_pixart_supervisely/model_best_0.1373399943113327.h5')
-
+                        old_model_path=old_model_path)
+                        
 for i, img_path in enumerate(test_imgs):
     img_name = img_path
     img_name = img_name.split('.')[0]
