@@ -14,8 +14,11 @@ import matplotlib.pyplot as plt
 train_batch_size = 16
 val_batch_size = 8
 INPUT_SIZE = (224, 224)
+# INPUT_SIZE = (224, 224)
+INPUT_SIZE = (448, 448)
 AUG_PARAMS = [0.75, 1.25, 0.75, 1.25, 0.6, 1.4]
 ANG_RANGE = 15
+device = 'GPU:0' #'CPU:0'
 
 train_trns = train_transforms(dataset='picsart', scale_size=INPUT_SIZE, ang_range=ANG_RANGE,
                                       augment_params=AUG_PARAMS, add_background=False,
@@ -40,14 +43,14 @@ val_dirs_hq = [join(d, 'val') for d in data_dirs_hq]
 train_dataset_hq = ImageTargetDataset(train_dirs_hq,
                                            train_batch_size,
                                            shuffle=True,
-                                           device='GPU:0',
+                                           device=device,
                                            **train_trns,
                                            IMG_EXTN='.jpg',
                                            TRGT_EXTN='.png')
 val_dataset_hq = ImageTargetDataset(val_dirs_hq,
                                            val_batch_size,
                                            shuffle=False,
-                                           device='GPU:0',
+                                           device=device,
                                            **val_trns,
                                            IMG_EXTN='.jpg',
                                            TRGT_EXTN='.png')
@@ -55,14 +58,14 @@ val_dataset_hq = ImageTargetDataset(val_dirs_hq,
 # train_dataset_coco = ImageTargetDataset(train_dirs_coco,
 #                                            train_batch_size,
 #                                            shuffle=True,
-#                                            device='GPU:0',
+#                                            device=device,
 #                                            **train_trns,
 #                                            IMG_EXTN='.jpg',
 #                                            TRGT_EXTN='.png')
 # val_dataset_coco = ImageTargetDataset(val_dirs_coco,
 #                                            val_batch_size,
 #                                            shuffle=False,
-#                                            device='GPU:0',
+#                                            device=device,
 #                                            **val_trns,
 #                                            IMG_EXTN='.jpg',
 #                                            TRGT_EXTN='.png')
@@ -88,7 +91,7 @@ train_dataset = RandomConcatDataset([train_dataset_hq],
 #         plt.show()
 #     break
 
-device = 'GPU:0'
+
 model_name = 'mobilenet_large'
 # model_name = 'test_model'
 n_class=1
@@ -116,7 +119,8 @@ old_model_path = None # '/workdir/data/experiments/fb_combined_mobilenetv3_tf_co
 mobilenet_model = Model(device=device,
                         model_name=model_name,
                         n_class=n_class,
-                        input_shape=(1,224,224,3),
+                        input_shape=(1,INPUT_SIZE[0],INPUT_SIZE[1],3),
+                        shape=INPUT_SIZE,
                         old_model_path=old_model_path)
 
 mobilenet_model.prepare_train(train_loader=train_dataset,
