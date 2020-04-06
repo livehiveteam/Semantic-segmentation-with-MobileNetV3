@@ -27,3 +27,11 @@ run:
 		--name=$(NAME) \
 		$(NAME) \
 		bash
+
+run_cpu:
+	docker run --rm -it --shm-size=16g \
+		--net=host \
+		-v $(shell pwd):/workdir \
+		--name=$(NAME) \
+		$(NAME) \
+		bash
