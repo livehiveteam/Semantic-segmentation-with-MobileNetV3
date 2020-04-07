@@ -32,6 +32,7 @@ mobilenet_model = Model(device=device,
                         model_name=model_name,
                         n_class=1,
                         input_shape=(1,input_size,input_size,3),
+                        shape=(input_size, input_size),
                         old_model_path=old_model_path)
                         
 for i, img_path in enumerate(test_imgs):
@@ -51,7 +52,7 @@ for i, img_path in enumerate(test_imgs):
     print(out_img.shape)
     print("--")
 
-    test_img = cv2.resize(test_img, (224,224))
+    #test_img = cv2.resize(test_img, (224,224))
     plt.imshow(test_img)
     plt.imshow((out_img>0.5)*255, alpha=0.4)
     plt.show()
